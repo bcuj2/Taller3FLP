@@ -118,3 +118,109 @@ Definición de la gramática BNF para las expresiones del lenguaje:
                      ::= sub1 (primitiva-sub1)
                      ::= neg (primitiva-negacion-booleana)
 |#
+
+;Especificación léxica
+(define scanner-spec-simple-interpreter
+  '((white-sp ;Espacios en blanco
+     (whitespace) skip) 
+    (comentario ;Comentarios
+     ("//" (arbno (not #\newline))) skip);
+    (texto
+     ((or letter "_") (arbno (or letter digit "-" ":"))) string);Esta regla define cómo reconocer y manejar cadenas de texto.
+                                                                ;Puede comenzar con una letra o un guión bajo("_") y luego puede contener letras, dígitos, guiones y dos puntos.
+    (identificador ;Identificadores
+     ("@" (arbno letter)) symbol)
+    (numero ;Número entero positivo
+     (digit (arbno digit)) number)
+    (numero ;Número entero negativo
+     ("-" digit (arbno digit)) number)
+    (numero
+     (digit (arbno digit) "." digit (arbno digit)) number) ;Número decimal positivo
+    (numero ;Número decimal negativo
+     ("-" digit (arbno digit) "." digit (arbno digit)) number)
+    ))
+
+
+;Especificación Sintáctica (Gramática)
+(define grammar-simple-interpreter
+  '(;Programa
+    (programa (expresion) un-programa)
+
+    ;Expresiones
+
+    ;Una expresión que es un número literal
+    (expresion (numero) numero-lit)
+
+    ;Una expresión que es un texto literal entre comillas dobles
+    (expresion ("\""texto"\"") texto-lit)
+
+    ;Una expresión que es un identificador
+    (expresion (identificador) var-exp)
+
+    ;Expresión que contiene una operación binaria
+    (expresion
+     ("("expresion primitiva-binaria expresion")") primapp-bin-exp)
+    ;Expresión que es una operación unaria entre paréntesis
+    (expresion (primitiva-unaria "("expresion")") primapp-un-exp)
+    
+    ;Condicional
+    (expresion ("Si" expresion "{" expresion "}" "sino" "{" expresion "}") condicional-exp)
+    
+    ;Variables Locales
+    (expresion ("declarar" "(" (arbno identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
+
+    ;Procedimientos
+    (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "{" expresion "}") procedimiento-exp)
+    (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")" "finEval") app-exp)
+    
+    ;Recursividad
+    (expresion ("letrec" (arbno identificador "(" (separated-list identificador ",") ")" "=" expresion)  "{" expresion "}") 
+                letrec-exp)
+     
+     
+    ;Primitivas-binarias
+    (primitiva-binaria ("+") primitiva-suma)
+    (primitiva-binaria ("~") primitiva-resta)
+    (primitiva-binaria ("/") primitiva-div)
+    (primitiva-binaria ("*") primitiva-multi)
+    (primitiva-binaria ("concat") primitiva-concat)
+    (primitiva-binaria (">") primitiva-mayor)
+    (primitiva-binaria ("<") primitiva-menor)
+    (primitiva-binaria (">=") primitiva-mayor-igual)
+    (primitiva-binaria ("<=") primitiva-menor-igual) 
+    (primitiva-binaria ("!=") primitiva-diferente)               
+    (primitiva-binaria ("==") primitiva-comparador-igual)
+                    
+    ;Primitivas-unarias
+    (primitiva-unaria ("longitud") primitiva-longitud)
+    (primitiva-unaria ("add1") primitiva-add1)
+    (primitiva-unaria ("sub1") primitiva-sub1)
+    (primitiva-unaria ("neg") primitiva-negacion-booleana)
+    
+    ))
+
+;Construyendo datos automáticamente
+(sllgen:make-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)
+
+;Definición de la función show-the-datatypes
+(define show-the-datatypes
+  (lambda () (sllgen:list-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)))
+
+;*******************************************************************************************
+;Parser, Scanner, Interfaz
+
+; El FrontEnd (Análisis léxico (scanner) y sintáctico (parser) integrados)
+(define scan&parse
+  (sllgen:make-string-parser scanner-spec-simple-interpreter grammar-simple-interpreter))
+
+; El Analizador Léxico (Scanner)
+(define just-scan
+  (sllgen:make-string-scanner scanner-spec-simple-interpreter grammar-simple-interpreter))
+
+; El Interpretador (FrontEnd + Evaluación + Señal para lectura)
+(define interpretador
+  (sllgen:make-rep-loop "--> "
+    (lambda (pgm) (eval-program  pgm))
+    (sllgen:make-stream-parser 
+      scanner-spec-simple-interpreter
+      grammar-simple-interpreter)))
