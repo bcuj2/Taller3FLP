@@ -224,3 +224,126 @@ Definición de la gramática BNF para las expresiones del lenguaje:
     (sllgen:make-stream-parser 
       scanner-spec-simple-interpreter
       grammar-simple-interpreter)))
+
+ 
+ ;*******************************************************************************************
+
+;El Interpretador
+
+;eval-program: <programa> -> numero
+;Función que evalúa un programa teniendo en cuenta un ambiente dado (Se inicializa dentro del programa)
+
+(define eval-program
+  (lambda (pgm)
+    ; Se utiliza el macro/casos 'cases' para hacer coincidencia de patrones sobre 'pgm'
+    (cases programa pgm
+      ; Si 'pgm' coincide con el patrón '(un-programa (body))', entonces:
+      (un-programa (body)
+                   ; Se evalúa la expresión 'body' en el entorno inicial
+                   (eval-expresion body (init-env))))))
+
+; Función que inicializa un ambiente con símbolos y valores definidos.
+(define init-env
+  (lambda ()
+    (extend-env
+     '(@a @b @c @d @e)     ;lista de símbolos
+     '(1 2 3 "hola" "FLP") ;Lista de valores correspondientes a cada símbolo
+     (empty-env))))        ;Un ambiente vacío
+
+
+;eval-expresion: <expresion> <environment> -> numero
+;Evalua la expresion en el ambiente de entrada
+(define eval-expresion
+  (lambda (exp env)
+    (cases expresion exp
+      ; Caso: Número literal. Retorna el propio número.
+      (numero-lit (num) num)
+      
+      ; Caso: Texto literal. Retorna el propio texto.
+      (texto-lit (txt) txt)
+      
+      ; Caso: Expresión de variable. Busca la variable en el entorno y la retorna.
+      (var-exp (id) (buscar-variable env id))
+      
+      ; Caso: Aplicación de operador binario. Evalúa los operandos y aplica la operación.
+      (primapp-bin-exp (exp1 prim-binaria exp2)
+                       (let (
+                             (args1 (eval-rand exp1 env))
+                             (args2 (eval-rand exp2 env))
+                             )
+                         (apply-primitiva-binaria args1 prim-binaria args2)))
+      
+      ; Caso: Aplicación de operador unario. Evalúa el operando y aplica la operación.
+      (primapp-un-exp (prim-unaria exp)
+                      (let (
+                            (args (eval-rand exp env))
+                            )
+                        (apply-primitiva-unaria prim-unaria args)))
+      
+      ; Caso: Expresión condicional. Evalúa la condición y retorna la rama correspondiente.
+      (condicional-exp (test-exp true-exp false-exp)
+                       (if (valor-verdad? (eval-expresion test-exp env))
+                           (eval-expresion true-exp env)
+                           (eval-expresion false-exp env)))
+      
+      ; Caso: Expresión de variable local. Evalúa los valores y extiende el entorno.
+      (variableLocal-exp (ids exps cuerpo)
+                          (let ((args (eval-rands exps env)))
+                           (eval-expresion cuerpo (extend-env ids args env))))
+                           
+      ; Caso: Expresión de procedimiento. Crea una cerradura (closure).
+      (procedimiento-exp (ids cuerpo)
+        (cerradura ids cuerpo env))
+      
+      ; Caso: Aplicación de procedimiento. Evalúa el procedimiento y aplica los argumentos.
+      (app-exp (rator rands)
+               (let ((proc (eval-expresion rator env))
+                     (args (eval-rands rands env)))
+                 (if (procVal? proc)
+                     (apply-procedure proc args)
+                     (eopl:error 'eval-expresion
+                                 "Intento de aplicar un no-procedimiento ~s" proc))))
+      
+      ; Caso: Expresión letrec. Evalúa el cuerpo con entorno extendido de forma recursiva.
+      (letrec-exp (proc-names idss bodies letrec-body)
+                  (eval-expresion letrec-body
+                                   (extend-env-recursively proc-names idss bodies env)))))
+
+  )
+
+;Función auxiliar para aplicar eval-rand a cada elemento dentro de exp1 exp2
+(define eval-rands
+  (lambda (rands env)
+    (map (lambda (x) (eval-rand x env)) rands)))
+
+;Función auxiliar para evaluar un "rand".
+(define eval-rand
+  (lambda (rand env)
+    (eval-expresion rand env)))
+
+;apply-primitiva-binaria: <expresion> <primitiva> <expresion> -> numero or string
+(define apply-primitiva-binaria
+  (lambda (exp1 prim exp2)
+    (cases primitiva-binaria prim
+      (primitiva-suma () (+ exp1 exp2))                          
+      (primitiva-resta () (- exp1 exp2))                        
+      (primitiva-multi () (* exp1 exp2))                        
+      (primitiva-div () (/ exp1 exp2))                          
+      (primitiva-concat () (string-append exp1 exp2))          
+      (primitiva-mayor () (> exp1 exp2))                       
+      (primitiva-menor () (< exp1 exp2))                        
+      (primitiva-mayor-igual () (>= exp1 exp2))                
+      (primitiva-menor-igual () (<= exp1 exp2))                
+      (primitiva-diferente () (not (= exp1 exp2)))             
+      (primitiva-comparador-igual () (= exp1 exp2))           
+      )))  
+
+;apply-primitiva-unaria <primitiva> <expresion> -> numero
+(define apply-primitiva-unaria
+  (lambda (prim exp)
+    (cases primitiva-unaria prim
+      (primitiva-longitud () (string-length exp))                 
+      (primitiva-add1 () (+ exp 1))                               
+      (primitiva-sub1 () (- exp 1))                               
+      (primitiva-negacion-booleana () (not exp))                
+      )))     
