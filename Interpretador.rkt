@@ -226,7 +226,7 @@ Definición de la gramática BNF para las expresiones del lenguaje:
       grammar-simple-interpreter)))
 
  
- ;*******************************************************************************************
+;*******************************************************************************************
 
 ;El Interpretador
 
@@ -348,4 +348,105 @@ Definición de la gramática BNF para las expresiones del lenguaje:
       (primitiva-negacion-booleana () (not exp))                
       )))     
       
+; Función booleana que valida si un valor es verdadero #t, considerando el valor 0 como falso #f.
+; valor-verdad? <expresion> -> Boolean
+(define valor-verdad?
+  (lambda(x)
+    (not (zero? x))))
 
+;Datatype para representar un ambiente
+(define-datatype environment environment?
+  ; Define un ambiente vacío
+  (empty-env-record)
+  ; Define un ambiente extendido
+  (extended-env-record (syms (list-of symbol?))
+                       (vals (list-of scheme-value?))
+                       (env environment?))
+  ; Define un ambiente extendido de manera recursiva
+  (recursively-extended-env-record (proc-names (list-of symbol?))
+                                   (idss (list-of (list-of symbol?)))
+                                   (bodies (list-of expresion?))
+                                   (env environment?))
+)
+
+(define scheme-value? (lambda (v) #t))
+
+;Función que permite crear un ambiente vacío
+;empty-env: -> enviroment
+(define empty-env  
+  (lambda ()
+    (empty-env-record))); 
+
+;Función que amplía el ambiente vinculando símbolos a valores.
+;extend-env: <list-of symbols> <list-of numbers> enviroment -> enviroment
+(define extend-env
+  (lambda (syms vals env)
+    (extended-env-record syms vals env)))
+
+;función que permite extender recursivamente el ambiente.
+(define extend-env-recursively
+  (lambda (proc-names idss bodies old-env)
+    (recursively-extended-env-record
+     proc-names idss bodies old-env)))
+
+;Función que busca un símbolo en un ambiente
+
+;Función buscar-variable que recibe dos argumentos de entrada: sym (identificador) y env (ambiente).
+(define buscar-variable
+  (lambda (env sym)
+    (cases environment env
+      ;Si el ambiente está vacío, se indica un error indicando que la variable no existe.
+      (empty-env-record ()
+                        (eopl:error "Error, la variable no existe"))
+      (extended-env-record (syms vals env)
+                           (let ((pos (list-find-position sym syms)))
+                             (if (number? pos)
+                                 (list-ref vals pos)
+                                 (buscar-variable env sym))))
+      ;Este caso esta tratando con un ambiente que ha sido extendido de forma recursiva.
+      (recursively-extended-env-record (proc-names idss bodies old-env)
+                                       ;Define una variable local "pos" para almacenar la posición de la variable en la lista de variables
+                                       (let ((pos (list-find-position sym proc-names)))
+                                         (if (number? pos)
+                                             (cerradura (list-ref idss pos)
+                                                      (list-ref bodies pos)
+                                                      env)
+                                             (buscar-variable old-env sym)))))))
+
+;Datatype para representar una cerradura o ProcVal
+(define-datatype procVal procVal?
+  (cerradura
+   (lista-ID (list-of symbol?))
+   (exp expresion?)
+   (amb environment?)
+   )
+  )
+
+; Función que evalua el cuerpo de un procedimiento en el ambiente extendido correspondiente
+(define apply-procedure
+  (lambda (proc args)
+    (cases procVal proc
+      (cerradura (ids body env)
+               (eval-expresion body (extend-env ids args env))))))
+
+
+;Funciones Auxiliares
+
+;Funciones auxiliares para encontrar la posición de un símbolo en la lista de símbolos de un ambiente
+
+(define list-find-position
+  (lambda (sym los)
+    (list-index (lambda (sym1) (eqv? sym1 sym)) los)))
+
+(define list-index
+  (lambda (pred ls)
+    (cond
+      ((null? ls) #f)
+      ((pred (car ls)) 0)
+      (else (let ((list-index-r (list-index pred (cdr ls))))
+              (if (number? list-index-r)
+                (+ list-index-r 1)
+                #f))))))
+
+;Se inicializa  el interpretador
+(interpretador)
