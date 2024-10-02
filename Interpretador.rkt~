@@ -160,25 +160,23 @@ Definición de la gramática BNF para las expresiones del lenguaje:
     ;Expresión que contiene una operación binaria
     (expresion
      ("("expresion primitiva-binaria expresion")") primapp-bin-exp)
-    
+    ;Expresión que es una operación unaria entre paréntesis
     (expresion (primitiva-unaria "("expresion")") primapp-un-exp)
-
-      
     
     ;Condicional
     (expresion ("Si" expresion "{" expresion "}" "sino" "{" expresion "}") condicional-exp)
-     ;(expresion ("Si" expresion "entonces" expresion "sino" expresion "finSI") condicional-exp)
-
+    
     ;Variables Locales
     (expresion ("declarar" "(" (arbno identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
+
     ;Procedimientos
     (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "{" expresion "}") procedimiento-exp)
     (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")" "finEval") app-exp)
-    ;Recursividad
-    (expresion ("recursion" (arbno identificador "(" (separated-list identificador",") ")" "=" expresion) "haga" expresion "finRec") letrec-exp)
-
-
     
+    ;Recursividad
+    (expresion ("letrec" (arbno identificador "(" (separated-list identificador ",") ")" "=" expresion)  "{" expresion "}") 
+                letrec-exp)
+     
      
     ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
@@ -248,7 +246,7 @@ Definición de la gramática BNF para las expresiones del lenguaje:
 (define init-env
   (lambda ()
     (extend-env
-     '(@a @b @c @d @e )     ;lista de símbolos
+     '(@a @b @c @d @e)     ;lista de símbolos
      '(1 2 3 "hola" "FLP") ;Lista de valores correspondientes a cada símbolo
      (empty-env))))        ;Un ambiente vacío
 
@@ -352,22 +350,9 @@ Definición de la gramática BNF para las expresiones del lenguaje:
       
 ; Función booleana que valida si un valor es verdadero #t, considerando el valor 0 como falso #f.
 ; valor-verdad? <expresion> -> Boolean
-; Función que retorna el número si es un número diferente de cero,
-; retorna #f si es cero, y lanza un error para otros tipos.
-; valor-verdad? <expresion> -> Number | Boolean
 (define valor-verdad?
-  (lambda (x)
-    (cond
-      ; Si es un número diferente de cero, retorna el número
-      ((number? x) 
-       (if (zero? x)
-           #f ; Retorna #f si es cero
-           x)) ; Retorna el número si no es cero
-      ; Si es booleano, retorna el booleano tal cual
-      ((boolean? x) x)
-      ; Para otros tipos, lanzar un error
-      (else ("Entrada inválida: se esperaba un valor booleano o numérico")))))
-
+  (lambda(x)
+    (not (zero? x))))
 
 ;Datatype para representar un ambiente
 (define-datatype environment environment?
