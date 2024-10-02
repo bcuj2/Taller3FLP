@@ -467,45 +467,90 @@ Definición de la gramática BNF para las expresiones del lenguaje:
 (interpretador)
 
 
+
+
 ;;IMPLEMENTACION
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;b)
-;letrec @factorial(@n) = 
-;   Si (@n == 0) { 
-;       1  
-;   } sino { 
-;        (@n * evaluar @factorial(sub1(@n)) finEval)  
-;    }
-;do evaluar @factorial(5) 
-;finEval
-;endRec
+;a)
+#|
+letrec 
+    @modulo(@a, @b) = 
+        Si (@b == 0) { 
+            0  
+        } sino { 
+            Si (@a < @b) { 
+                @a 
+            } sino { 
+                evaluar @modulo((@a ~ @b), @b) finEval
+            }
+        }
 
-;do evaluar @factorial(10) 
-;finEval
-;endRec
+    @quotient(@n, @b) = 
+        Si (@b == 0) {
+            0
+        } sino {
+            Si (@n < @b) {
+                0
+            } sino {
+                (1 + evaluar @quotient((@n ~ @b), @b) finEval)
+            }
+        }
+
+    @sumarDigitos(@n) = 
+        Si (@n == 0) {
+            0
+        } sino {
+           ( evaluar @modulo(@n, 10) finEval + 
+            evaluar @sumarDigitos(evaluar @quotient(@n, 10) finEval) finEval)
+        }
+
+do 
+    evaluar @sumarDigitos(147) finEval
+endRec
+|#
+
+;b)
+#|
+letrec @factorial(@n) = 
+   Si (@n == 0) { 
+      1  
+   } sino { 
+        (@n * evaluar @factorial(sub1(@n)) finEval)  
+    }
+do evaluar @factorial(5) 
+finEval
+endRec
+
+do evaluar @factorial(10) 
+finEval
+endRec
+|#
 
 ;c
-;letrec @potencia(@base, @exponente) = 
-;   Si (@exponente == 0) { 
-;      1  
-;   } sino { 
-;      (@base * evaluar @potencia(@base, sub1(@exponente)) finEval)
-;   } 
-;do
-;   evaluar @potencia(4, 2) finEval
-;endRec
+#|
+letrec @potencia(@base, @exponente) = 
+   Si (@exponente == 0) { 
+      1  
+   } sino { 
+      (@base * evaluar @potencia(@base, sub1(@exponente)) finEval)
+   } 
+do
+   evaluar @potencia(4, 2) finEval
+endRec
+|#
 
 ;d)
-; letrec @sumaRango(@a, @b) =
-;    Si (@a == @b) {
-;        @a
-;    } sino {
-;        (@a + evaluar @sumaRango(add1(@a), @b) finEval)
-;    }
-;do 
-;    evaluar @sumaRango(2, 5) finEval
-;endRec
-
+#|
+ letrec @sumaRango(@a, @b) =
+   Si (@a == @b) {
+        @a
+    } sino {
+        (@a + evaluar @sumaRango(add1(@a), @b) finEval)
+    }
+do 
+    evaluar @sumaRango(2, 5) finEval
+endRec
+|#
 
 
 
