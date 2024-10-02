@@ -175,7 +175,7 @@ Definición de la gramática BNF para las expresiones del lenguaje:
     (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "{" expresion "}") procedimiento-exp)
     (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")" "finEval") app-exp)
     ;Recursividad
-    (expresion ("recursion" (arbno identificador "(" (separated-list identificador",") ")" "=" expresion) "haga" expresion "finRec") letrec-exp)
+    (expresion ("letrec" (arbno identificador "(" (separated-list identificador",") ")" "=" expresion) "do" expresion "endRec") letrec-exp)
 
 
     
@@ -467,6 +467,22 @@ Definición de la gramática BNF para las expresiones del lenguaje:
 (interpretador)
 
 
+;;IMPLEMENTACION
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;b)
+;letrec @factorial(@n) = 
+;   Si (@n == 0) { 
+;       1  
+;   } sino { 
+;        (@n * evaluar @factorial(sub1(@n)) finEval)  
+;    }
+;do evaluar @factorial(5) 
+;finEval
+;endRec
+
+;do evaluar @factorial(10) 
+;finEval
+;endRec
 
 
 
