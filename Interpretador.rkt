@@ -484,6 +484,17 @@ Definición de la gramática BNF para las expresiones del lenguaje:
 ;finEval
 ;endRec
 
+;c
+;letrec @potencia(@base, @exponente) = 
+;   Si (@exponente == 0) { 
+;      1  
+;   } sino { 
+;      (@base * evaluar @potencia(@base, sub1(@exponente)) finEval)
+;   } 
+;do
+;   evaluar @potencia(4, 2) finEval
+;endRec
+
 ;d)
 ; letrec @sumaRango(@a, @b) =
 ;    Si (@a == @b) {
