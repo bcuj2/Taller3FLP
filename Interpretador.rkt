@@ -484,6 +484,17 @@ Definición de la gramática BNF para las expresiones del lenguaje:
 ;finEval
 ;endRec
 
+;d)
+; letrec @sumaRango(@a, @b) =
+;    Si (@a == @b) {
+;        @a
+;    } sino {
+;        (@a + evaluar @sumaRango(add1(@a), @b) finEval)
+;    }
+;do 
+;    evaluar @sumaRango(2, 5) finEval
+;endRec
+
 
 
 
