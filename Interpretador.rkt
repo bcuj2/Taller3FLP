@@ -11,62 +11,7 @@ urrea.brayan@correounivalle.edu.co
 Código: 2410023
 
 Enlace al repositorio: https://github.com/bcuj2/Taller3FLP.gits
----------------------------------------------------------
-
-************************************* PUNTOS A EVALAUAR *****************************************
-Punto a).
-propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento @sumarDigitos
-que le permita sumar los dígitos de un número entero positivo. evaluar @sumarDigitos(147) finEval deberá retornar 12
-
-
-Punto b).
-propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento que permita calcular el
-factorial de un número n. Como la gramática para funciones recursivas debe ser propuesta por el grupo, incluya dos ejemplos
-de uso para el factorial de 5 y el factorial de 10.
-
-
-Punto c).
-propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento que permita calcular una
-potencia de forma recursiva @potencia(base, exponente). Si no se evidencia el uso de recursión, el ejercicio no será
-valido. Incluya un llamado a la función recursiva: "evaluar @potencia (4, 2) finEval " que retornaría 16.
-
-
-Punto d).
-propósito: Escriba un programa que sume los números en un rango de valores positivos [a,b], donde siempre se cumple 
-en la invocación a < b:  Por ejemplo "evaluar @sumaRango (2, 5) finEval  "  retornaría 14.
-
-
-Punto E).
-propósito: Se Definieron tres funciones y se está realizando una serie de evaluaciones.
-La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
-La función 'saludar' toma una función 'm' como argumento y retorna una cadena de texto concatenada con el resultado de evaluar 'm'.
-La función 'decorate' evalúa la función 'saludar' con 'integrantes' como argumento y retorna el resultado.
-
-Luego, se evalúa 'decorate' y se espera que devuelva "Hola:Ervin_y_Brayan".
-
-letrec
-@integrantes() = "Ervin_y_Brayan"
-@saludar(@m) = ("Hola:" concat evaluar @m() finEval) 
-@decorate() = evaluar @saludar(@integrantes) finEval
-{evaluar @decorate() finEval}
-
-
-Punto F).
-propósito: Se Definen tres funciones y se está realizando una serie de evaluaciones.
-La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
-La función 'saludar' toma una función 'm' como argumento y retorna una cadena de texto concatenada con el resultado de evaluar 'm'.
-La función 'decorate' toma un argumento 'm' y retorna la concatenación del resultado de evaluar 'saludar' con 'integrantes' y 'm'.
-
-Luego, se evalúa 'decorate' con el argumento "_EstudiantesFLP" y se espera que devuelva "Hola:Ervin_y_Brayan_EstudiantesFLP".
-
-letrec
-@integrantes() = "Ervin_y_Brayan"
-@saludar(@m) = ("Hola:" concat evaluar @m() finEval)
-@decorate(@m) = (evaluar @saludar(@integrantes) finEval concat @m)
-{evaluar @decorate("_EstudiantesFLP") finEval}
-//Retorna "Hola:Ervin_y_Brayan_EstudiantesFLP".
-
-
+-----------------------------------------------------------------
 --------------------INTERPRETADOR SIMPLE--------------------------
 
 Definición de la gramática BNF para las expresiones del lenguaje:
@@ -126,7 +71,7 @@ Definición de la gramática BNF para las expresiones del lenguaje:
     (comentario ;Comentarios
      ("//" (arbno (not #\newline))) skip);
     (texto
-     ((or letter "_") (arbno (or letter digit "-" ":"))) string);Esta regla define cómo reconocer y manejar cadenas de texto.
+     ((or letter "_") (arbno (or letter digit "_" ":"))) string);Esta regla define cómo reconocer y manejar cadenas de texto.
                                                                 ;Puede comenzar con una letra o un guión bajo("_") y luego puede contener letras, dígitos, guiones y dos puntos.
     (identificador ;Identificadores
      ("@" (arbno letter)) symbol)
@@ -469,9 +414,10 @@ Definición de la gramática BNF para las expresiones del lenguaje:
 
 
 
-;;IMPLEMENTACION
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;************************************* PUNTOS A EVALAUAR *****************************************
 ;a)
+;propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento @sumarDigitos
+;que le permita sumar los dígitos de un número entero positivo. evaluar @sumarDigitos(147) finEval deberá retornar 12.
 #|
 letrec 
     @modulo(@a, @b) = 
@@ -510,6 +456,9 @@ endRec
 |#
 
 ;b)
+;propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento que permita calcular el
+;factorial de un número n. Como la gramática para funciones recursivas debe ser propuesta por el grupo, incluya dos ejemplos
+;de uso para el factorial de 5 y el factorial de 10.
 #|
 letrec @factorial(@n) = 
    Si (@n == 0) { 
@@ -526,7 +475,10 @@ finEval
 endRec
 |#
 
-;c
+;c)
+;propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento que permita calcular una
+;potencia de forma recursiva @potencia(base, exponente). Si no se evidencia el uso de recursión, el ejercicio no será
+;valido. Incluya un llamado a la función recursiva: "evaluar @potencia (4, 2) finEval " que retornaría 16.
 #|
 letrec @potencia(@base, @exponente) = 
    Si (@exponente == 0) { 
@@ -540,6 +492,8 @@ endRec
 |#
 
 ;d)
+;propósito: Escriba un programa que sume los números en un rango de valores positivos [a,b], donde siempre se cumple 
+;en la invocación a < b:  Por ejemplo "evaluar @sumaRango (2, 5) finEval  "  retornaría 14.
 #|
  letrec @sumaRango(@a, @b) =
    Si (@a == @b) {
@@ -551,9 +505,6 @@ do
     evaluar @sumaRango(2, 5) finEval
 endRec
 |#
-
-
-
 
 
 
