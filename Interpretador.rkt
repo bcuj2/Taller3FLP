@@ -12,6 +12,7 @@ Código: 2410023
 
 Enlace al repositorio: https://github.com/bcuj2/Taller3FLP.gits
 -----------------------------------------------------------------
+
 --------------------INTERPRETADOR SIMPLE--------------------------
 
 Definición de la gramática BNF para las expresiones del lenguaje:
@@ -41,8 +42,6 @@ Definición de la gramática BNF para las expresiones del lenguaje:
                      ::= "evaluar" expresion (expresion *(",") ) finEval
                          <app-exp (exp exps)>
 
-                    
-                     
                      ::= letrec {<identificador> ({<identificador}*(,)) = <expresion>}* {<expresion>}
                          <letrec-exp (proc-names idss bodies letrec-body)
 
@@ -108,8 +107,7 @@ Definición de la gramática BNF para las expresiones del lenguaje:
     
     (expresion (primitiva-unaria "("expresion")") primapp-un-exp)
 
-      
-    
+  
     ;Condicional
     (expresion ("Si" expresion "{" expresion "}" "sino" "{" expresion "}") condicional-exp)
      ;(expresion ("Si" expresion "entonces" expresion "sino" expresion "finSI") condicional-exp)
@@ -122,9 +120,7 @@ Definición de la gramática BNF para las expresiones del lenguaje:
     ;Recursividad
     (expresion ("letrec" (arbno identificador "(" (separated-list identificador",") ")" "=" expresion) "do" expresion "endRec") letrec-exp)
 
-
-    
-     
+   
     ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
     (primitiva-binaria ("~") primitiva-resta)
@@ -194,8 +190,8 @@ Definición de la gramática BNF para las expresiones del lenguaje:
   (lambda ()
     (extend-env
      '(@a @b @c @d @e )     ;lista de símbolos
-     '(1 2 3 "hola" "FLP") ;Lista de valores correspondientes a cada símbolo
-     (empty-env))))        ;Un ambiente vacío
+     '(1 2 3 "hola" "FLP")  ;Lista de valores correspondientes a cada símbolo
+     (empty-env))))         ;Un ambiente vacío
 
 
 ;eval-expresion: <expresion> <environment> -> numero
@@ -411,14 +407,13 @@ Definición de la gramática BNF para las expresiones del lenguaje:
 ;Se inicializa  el interpretador
 (interpretador)
 
-
-
-
-;************************************* PUNTOS A EVALAUAR *****************************************
-;a)
-;propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento @sumarDigitos
-;que le permita sumar los dígitos de un número entero positivo. evaluar @sumarDigitos(147) finEval deberá retornar 12.
 #|
+************************************* PUNTOS A EVALAUAR *****************************************
+
+Punto A).
+propósito: Programa que contiene un procedimiento @sumarDigitos que permite sumar los dígitos de un número entero
+positivo. 
+
 letrec 
     @modulo(@a, @b) = 
         Si (@b == 0) { 
@@ -453,13 +448,14 @@ letrec
 do 
     evaluar @sumarDigitos(147) finEval
 endRec
-|#
 
-;b)
-;propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento que permita calcular el
-;factorial de un número n. Como la gramática para funciones recursivas debe ser propuesta por el grupo, incluya dos ejemplos
-;de uso para el factorial de 5 y el factorial de 10.
-#|
+Resultado esperado del punto A: (12)
+
+Punto B).
+propósito: Programa que contiene un procedimiento que permite calcular el factorial de un número n.
+Con la gramática para funciones recursivas implementada por el equipo de trbajo. Ejemplos de uso para
+el factorial de 5 y el factorial de 10.
+
 letrec @factorial(@n) = 
    Si (@n == 0) { 
       1  
@@ -470,16 +466,24 @@ do evaluar @factorial(5)
 finEval
 endRec
 
+Resultado esperado del punto B: (120)
+
+letrec @factorial(@n) = 
+   Si (@n == 0) { 
+      1  
+   } sino { 
+        (@n * evaluar @factorial(sub1(@n)) finEval)  
+    }
 do evaluar @factorial(10) 
 finEval
 endRec
-|#
 
-;c)
-;propósito: Escriba un programa en su lenguaje de programación que contenga un procedimiento que permita calcular una
-;potencia de forma recursiva @potencia(base, exponente). Si no se evidencia el uso de recursión, el ejercicio no será
-;valido. Incluya un llamado a la función recursiva: "evaluar @potencia (4, 2) finEval " que retornaría 16.
-#|
+Resultado esperado del punto B: (3628800)
+
+Punto C).
+propósito: Programa que contiene un procedimiento que permite calcular una potencia de forma recursiva
+@potencia(base, exponente). Incluyendo un llamado a la función recursiva.
+
 letrec @potencia(@base, @exponente) = 
    Si (@exponente == 0) { 
       1  
@@ -489,13 +493,14 @@ letrec @potencia(@base, @exponente) =
 do
    evaluar @potencia(4, 2) finEval
 endRec
-|#
 
-;d)
-;propósito: Escriba un programa que sume los números en un rango de valores positivos [a,b], donde siempre se cumple 
-;en la invocación a < b:  Por ejemplo "evaluar @sumaRango (2, 5) finEval  "  retornaría 14.
-#|
- letrec @sumaRango(@a, @b) =
+Resultado esperado del punto C: 16
+
+Punto D).
+propósito: Programa que permite sumar los números en un rango de valores positivos [a,b], donde siempre se cumple 
+en la invocación a < b.
+
+letrec @sumaRango(@a, @b) =
    Si (@a == @b) {
         @a
     } sino {
@@ -504,15 +509,15 @@ endRec
 do 
     evaluar @sumaRango(2, 5) finEval
 endRec
-|#
 
-;e)
-;propósito: Se Definieron tres funciones y se está realizando una serie de evaluaciones.
-;La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
-;La función 'saludar' genera el saludo al concatenar "Hola:" con el resultado de evaluar @m(). Aquí, @m se refiere a @integrantes.
-;La función 'decorate' evalúa la función 'saludar' para retornar el saludo correspondiente a los integrantes.
+Resultado esperado del punto D: (14)
 
-#|
+Punto E).
+propósito: Se Definieron tres funciones y se está realizando una serie de evaluaciones.
+La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
+La función 'saludar' genera el saludo al concatenar "Hola:" con el resultado de evaluar @m(). Aquí, @m se refiere a @integrantes.
+La función 'decorate' evalúa la función 'saludar' para retornar el saludo correspondiente a los integrantes.
+
 letrec
     @integrantes() = "Ervin_y_Brayan"
     @saludar(@m) = ("Hola:" concat evaluar @m() finEval)
@@ -520,21 +525,22 @@ letrec
 
 do evaluar @decorate(@integrantes) finEval endRec
 
-Resultado esperado: "Hola:Ervin_y_Brayan"
-|#
+Resultado esperado del punto E: "Hola:Ervin_y_Brayan"
 
-;f)
-;propósito:Se Definen tres funciones y se está realizando una serie de evaluaciones.
-;La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
-;La función 'saludar' toma una función 'm' como argumento y retorna una cadena de texto concatenada con el resultado de evaluar 'm'.
-;La función 'decorate' toma un argumento 'm' y retorna la concatenación del resultado de evaluar 'saludar' con 'integrantes' y 'm'.
-;Luego, se evalúa 'decorate' con el argumento "_EstudiantesFLP".
-#|
+Punto F).
+propósito:Se Definen tres funciones y se está realizando una serie de evaluaciones.
+La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
+La función 'saludar' toma una función 'm' como argumento y retorna una cadena de texto concatenada con el resultado de evaluar 'm'.
+La función 'decorate' toma un argumento 'm' y retorna la concatenación del resultado de evaluar 'saludar' con 'integrantes' y 'm'.
+Luego, se evalúa 'decorate' con el argumento "_EstudiantesFLP".
+
 letrec
     @integrantes() = "Ervin_y_Brayan"
     @saludar(@m) = ("Hola:" concat evaluar @m() finEval)
     @decorate(@m) = (evaluar @saludar(@integrantes) finEval concat @m)
 do evaluar @decorate("_EstudiantesFLP") finEval endRec
 
-Resultado esperado: "Hola:Ervin_y_Brayan_EstudiantesFLP"
-|# 
+Resultado esperado del punto F: "Hola:Ervin_y_Brayan_EstudiantesFLP"
+|#
+
+
