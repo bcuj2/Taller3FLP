@@ -506,7 +506,22 @@ do
 endRec
 |#
 
+;e)
+;propósito: Se Definieron tres funciones y se está realizando una serie de evaluaciones.
+;La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
+;La función 'saludar' genera el saludo al concatenar "Hola:" con el resultado de evaluar @m(). Aquí, @m se refiere a @integrantes.
+;La función 'decorate' evalúa la función 'saludar' para retornar el saludo correspondiente a los integrantes.
 
+#|
+letrec
+    @integrantes() = "Ervin_y_Brayan"
+    @saludar(@m) = ("Hola:" concat evaluar @m() finEval)
+    @decorate(@m) = evaluar @saludar(@m) finEval  
+
+do evaluar @decorate(@integrantes) finEval endRec
+
+; Resultado esperado: "Hola:Ervin_y_Brayan"
+|#
 
 
 
