@@ -520,8 +520,21 @@ letrec
 
 do evaluar @decorate(@integrantes) finEval endRec
 
-; Resultado esperado: "Hola:Ervin_y_Brayan"
+Resultado esperado: "Hola:Ervin_y_Brayan"
 |#
 
+;f)
+;propósito:Se Definen tres funciones y se está realizando una serie de evaluaciones.
+;La función 'integrantes' retorna una cadena de texto con los nombres "Ervin_y_Brayan".
+;La función 'saludar' toma una función 'm' como argumento y retorna una cadena de texto concatenada con el resultado de evaluar 'm'.
+;La función 'decorate' toma un argumento 'm' y retorna la concatenación del resultado de evaluar 'saludar' con 'integrantes' y 'm'.
+;Luego, se evalúa 'decorate' con el argumento "_EstudiantesFLP".
+#|
+letrec
+    @integrantes() = "Ervin_y_Brayan"
+    @saludar(@m) = ("Hola:" concat evaluar @m() finEval)
+    @decorate(@m) = (evaluar @saludar(@integrantes) finEval concat @m)
+do evaluar @decorate("_EstudiantesFLP") finEval endRec
 
-
+Resultado esperado: "Hola:Ervin_y_Brayan_EstudiantesFLP"
+|# 
